@@ -1,12 +1,17 @@
+
 import numpy as np
 import config
+
+
+
 class RLC():
-    def __init__(self,brnType,strnode,stpnode,Ilast,Vlast,value):
+    def __init__(self,brnType,strnode,stpnode,value):
         self.brnType=brnType
         self.strnode=strnode
         self.stpnode=stpnode
-        self.Ilast=Ilast
-        self.Vlast=Vlast
+
+        self.Ilast=0.0
+        self.Vlast=0.0
         self.ihistory=0.0
         
 
@@ -44,7 +49,7 @@ class Source():
 
 
     def Sourceupdate(self,TheTime):
-        self.ihistory = self.magnitude*np.cos(2.0*np.pi*self.frequency*TheTime + self.angle*np.pi/180.0)
+        self.ihistory = (self.magnitude*np.cos(2.0*np.pi*self.frequency*TheTime + self.angle*np.pi/180.0))/(self.Reff)
         #print("sourceupdate method clled",self.ihistory)
 
 
