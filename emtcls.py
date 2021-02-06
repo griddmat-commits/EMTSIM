@@ -43,7 +43,7 @@ class Network:
 
 
     def formG(self):
-        print("Generating the conductance matrix...")
+        #print("Generating the conductance matrix...")
         
         for obj in self.comp_list:
             From = obj.strnode
@@ -69,7 +69,7 @@ class Network:
 
             To=To-1
             From=From-1
-            print(obj.Reff)
+            #print(obj.Reff)
             if obj.Series==1:
                 self.G[To,To] = self.G[To,To] + 1/obj.Reff
                 self.G[From,From] = self.G[From,From] + 1/obj.Reff
@@ -78,15 +78,15 @@ class Network:
             else:
                 self.G[To,To] = self.G[To,To] + 1/obj.Reff
 
-            #print(self.G)
+        print(self.G)
             
-        print("Conductance matrix:\n ",self.G,"\n")
-        print("IH",self.I_H,"\n")
-        print("Vn",self.Vn,"\n")
+        #print("Conductance matrix:\n ",self.G,"\n")
+        #print("IH",self.I_H,"\n")
+        #print("Vn",self.Vn,"\n")
        
 
     def Gdivide(self):
-        print("Modifying the conductance matrix...\n")        
+        #print("Modifying the conductance matrix...\n")        
 
         self.G_UU = self.G[0:self.unknownNodes,0:self.unknownNodes]
         print("G_UU",self.G_UU)
@@ -112,7 +112,7 @@ class Network:
         print("\n")
 
     def Vdivide(self):
-        self.V_K=self.Vn[0:self.src_cont] 
+        self.V_K=self.Vn[self.unknownNodes:self.numNodes] 
         print("V_K",self.V_K)
         print("\n")
 
@@ -144,7 +144,7 @@ class Network:
             else:
                 print("Only R L C S elements considered")
             
-            print("history of branch",obj.ihistory,"\n")
+            #print("history of branch",obj.ihistory,"\n")
 
     def calcinjection(self):
 
@@ -169,11 +169,11 @@ class Network:
                 else:
                     pass
 
-        print("I_H",self.I_H)
+        #print("I_H",self.I_H)
 
     def Idivide(self):
 
-        self.I_K=self.I_H[0:self.src_cont]
+        self.I_K=self.I_H[self.unknownNodes:self.numNodes]
         print("I_K",self.I_K)
         print("\n")
         
@@ -183,23 +183,23 @@ class Network:
 
     def calIUnew(self):
         self.I_U_new= self.I_U - np.matmul(self.G_UK,self.V_K)
-        print("I_U_new",self.I_U_new)
+        #print("I_U_new",self.I_U_new)
 
 
     def calcnewV(self):
         self.V_U=np.linalg.solve(self.G_UU, self.I_U_new ) 
-        print("V_U",self.V_U)
+        #print("V_U",self.V_U)
 
 
     def reconstruct_V(self):
         self.Vn=np.concatenate([self.V_U,self.V_K])
-        print("Vn",self.Vn)
+        #print("Vn",self.Vn)
 
     def reconstruct_I(self):
 
         self.I_K=np.matmul(self.G_KU,self.V_U)+ np.matmul(self.G_KK,self.V_K) 
         self.I_H=np.concatenate([self.I_U,self.I_K])
-        print("I_H",self.I_H)
+        #print("I_H",self.I_H)
         #print("delthis",self.I_H[self.unknownNodes:self.numNodes] )
 
     def calcNewbranchI(self):

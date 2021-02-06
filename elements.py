@@ -39,20 +39,16 @@ class Source():
         self.angle= angle
         self.frequency= frequency
         self.Reff=value
-        #print(self.Reff)
+      
         self.Vlast=0.0
         self.ihistory=0.0
         print(self.Reff)
-
-
-
-
 
     def Sourceupdate(self,TheTime):
         self.ihistory = (self.magnitude*np.cos(2.0*np.pi*self.frequency*TheTime + self.angle*np.pi/180.0))/(self.Reff)
         #print("sourceupdate method clled",self.ihistory)
 
-
+'''
 class Switch():
     stoptogle=0
     def __init__(self,brnType,strnode,stpnode,Ilast,Vlast,valueon,valueoff,togletime,status=1):
@@ -88,6 +84,7 @@ class Switch():
             self.Reff=self.valueon
         elif self.status==0:
             self.Reff=self.valueoff
+'''
 
                     
 
