@@ -86,7 +86,7 @@ class Network:
        
 
     def Gdivide(self):
-        #print("Modifying the conductance matrix...\n")        
+        print("\nModifying the conductance matrix...\n")        
 
         self.G_UU = self.G[0:self.unknownNodes,0:self.unknownNodes]
         print("G_UU",self.G_UU)
@@ -108,6 +108,7 @@ class Network:
     def LU(self):
         (P, L, U) = la.lu(self.G_UU)
         self.G_UU=U
+        print("\nLU decom the GUU...\n") 
         print("G_UU after LU decom",self.G_UU)
         print("\n")
 
@@ -126,7 +127,7 @@ class Network:
         for obj in self.comp_list:
             if obj.brnType=="S":
                 obj.Sourceupdate(TheTime)
-                self.V_K[0]=obj.ihistory
+                self.V_K[i]=obj.ihistory
                 i=i+1
 
 
@@ -174,12 +175,12 @@ class Network:
     def Idivide(self):
 
         self.I_K=self.I_H[self.unknownNodes:self.numNodes]
-        print("I_K",self.I_K)
-        print("\n")
+        #print("I_K",self.I_K)
+        #print("\n")
         
         self.I_U = self.I_H[0:self.unknownNodes]
-        print("I_U",self.I_U)
-        print("\n ///////////////////////////////////////// \n")
+        #print("I_U",self.I_U)
+        #print("\n ///////////////////////////////////////// \n")
 
     def calIUnew(self):
         self.I_U_new= self.I_U - np.matmul(self.G_UK,self.V_K)
