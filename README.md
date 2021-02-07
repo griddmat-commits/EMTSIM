@@ -1,7 +1,7 @@
 ___
 
 
-# DommelSim by Amila Pathirana
+# DommelSim by APathirana
 ___
 Free EMT simulation program based on Domels algorithm
 ---
@@ -11,7 +11,9 @@ __
 2. Divide the G into Guu,Guk,Gku,Gkk
 3. Use LU decompossition and obtain upper triangular matrix of Guu
 4. Initialize IU,IK,VU and VK
+
 5. Enter main time loop
+
 6. Update voltage sources
 8. Calculate the history currents of all the branches(ihistory)
 9. Calculate the current injection (IH)
@@ -19,6 +21,9 @@ __
 11. Calculate IUnew (IUnew=IU-Guk*Vk)
 12. Calculate node voltages(VU)
 13. Reconstruct Vn (concat VU and VK)
+14. Update the branch currents
+15. Plot the voltage of specific node
+
     
 ___
 
@@ -30,12 +35,13 @@ def run():
 
     EMTDC=emtcls.Network()
     EMTDC.formG()
+   
     EMTDC.Gdivide()
     EMTDC.LU()
     EMTDC.Vdivide()
 
     while Time<config.stpTime:
-
+        Time=Time+config.Dt
         EMTDC.Vkupdate(Time)        
         EMTDC.calcBrnHistory()
         EMTDC.calcinjection()
@@ -43,14 +49,18 @@ def run():
         EMTDC.calIUnew()
         EMTDC.calcnewV()
         EMTDC.reconstruct_V()
-        EMTDC.reconstruct_I()
         EMTDC.calcNewbranchI()
-        EMTDC.recordv(3)
-        
-        Time=Time+config.Dt
-
+        EMTDC.recordv(2)
+       
     EMTDC.plotv()
-```
-_____
 
-[Amila Pathirana](http://www.apathirana.com)
+
+if __name__ == "__main__":
+    run()
+```
+
+Feel free to Fork and improve :D
+
+
+
+
