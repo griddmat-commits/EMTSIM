@@ -2,8 +2,6 @@
 import numpy as np
 import config
 
-
-
 class RLC():
     def __init__(self,brnType,strnode,stpnode,value):
         self.brnType=brnType
@@ -51,12 +49,12 @@ class Source():
 '''
 class Switch():
     stoptogle=0
-    def __init__(self,brnType,strnode,stpnode,Ilast,Vlast,valueon,valueoff,togletime,status=1):
+    def __init__(self,brnType,strnode,stpnode,valueon,valueoff,status=1):
         self.brnType=brnType
         self.strnode=strnode
         self.stpnode=stpnode
-        self.Ilast=Ilast
-        self.Vlast=Vlast
+        self.Ilast=0
+        self.Vlast=0
         self.valueon=valueon
         self.valueoff=valueoff
         self.status=status
@@ -69,7 +67,7 @@ class Switch():
             self.Reff=self.valueoff
 
     def togle(self):
-        print(self.status)
+        #print(self.status)
         if stoptogle==0:
             if self.status==1:
                 self.status=0
@@ -84,9 +82,9 @@ class Switch():
             self.Reff=self.valueon
         elif self.status==0:
             self.Reff=self.valueoff
-'''
 
-                    
+
+'''             
 
 
         

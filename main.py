@@ -13,11 +13,13 @@ def run():
     EMTDC=emtcls.Network()
     EMTDC.formG()
    
-    EMTDC.Gdivide()
-    EMTDC.LU()
-    EMTDC.Vdivide()
+
 
     while Time<config.stpTime:
+        EMTDC.Gdivide()
+        EMTDC.LU()
+        EMTDC.Vdivide()
+
         Time=Time+config.Dt
         EMTDC.Vkupdate(Time)        
         EMTDC.calcBrnHistory()
