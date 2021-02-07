@@ -1,9 +1,11 @@
 ___
 
-
 # DommelSim by APathirana
 ___
-Free EMT simulation program based on Domels algorithm
+DommelSim is a open source EMT simulation program based on algorithm proposed by dommel. 
+This simulation program contains only R, L, C elements and voltage sources.
+With this program structure, it is easy to add new components to the program. for example, if you want to add  a new element into the program, go to the dataloader.py and add the new component with specified parameters. Available elements are defined in the elments.py file.
+ 
 ---
 ## Steps of the simulation algorithm inside DommelSim
 __

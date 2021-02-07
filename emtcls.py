@@ -38,6 +38,7 @@ class Network:
 
         self.trace=[]
 
+
         print("No of sources",self.src_cont,"\n")
         print("No of unknown nodes",self.unknownNodes,"\n")
 
@@ -226,6 +227,7 @@ class Network:
 
     def recordv(self,node):
         self.trace.append(self.Vn[node-1])
+
 
     def plotv(self):
         plt.close('all')

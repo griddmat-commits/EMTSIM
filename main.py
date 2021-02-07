@@ -23,18 +23,14 @@ def run():
         EMTDC.calcBrnHistory()
         EMTDC.calcinjection()
         EMTDC.Idivide()
-
         EMTDC.calIUnew()
         EMTDC.calcnewV()
         EMTDC.reconstruct_V()
         EMTDC.calcNewbranchI()
         EMTDC.recordv(2)
         
-
+       
     EMTDC.plotv()
-
-
-
 
 
 if __name__ == "__main__":
