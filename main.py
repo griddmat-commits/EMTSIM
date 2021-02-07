@@ -18,18 +18,18 @@ def run():
     EMTDC.Vdivide()
 
     while Time<config.stpTime:
-
+        Time=Time+config.Dt
         EMTDC.Vkupdate(Time)        
         EMTDC.calcBrnHistory()
         EMTDC.calcinjection()
         EMTDC.Idivide()
+
         EMTDC.calIUnew()
         EMTDC.calcnewV()
         EMTDC.reconstruct_V()
-        EMTDC.reconstruct_I()
         EMTDC.calcNewbranchI()
-        EMTDC.recordv(1)
-        Time=Time+config.Dt
+        EMTDC.recordv(2)
+        
 
     EMTDC.plotv()
 

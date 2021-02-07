@@ -136,7 +136,7 @@ class Network:
             if obj.brnType=="R":
                obj.ihistory=0.0
             elif obj.brnType=="S":
-                pass
+                obj.ihistory=0.0
                 #print("source hisory",obj.ihistory)
             elif obj.brnType=="L":
                 obj.ihistory=obj.Ilast+obj.Vlast/obj.Reff
@@ -196,12 +196,7 @@ class Network:
         self.Vn=np.concatenate([self.V_U,self.V_K])
         #print("Vn",self.Vn)
 
-    def reconstruct_I(self):
 
-        self.I_K=np.matmul(self.G_KU,self.V_U)+ np.matmul(self.G_KK,self.V_K) 
-        self.I_H=np.concatenate([self.I_U,self.I_K])
-        #print("I_H",self.I_H)
-        #print("delthis",self.I_H[self.unknownNodes:self.numNodes] )
 
     def calcNewbranchI(self):
         for obj in self.comp_list:
