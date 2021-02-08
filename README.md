@@ -1,6 +1,6 @@
 ___
 
-# DommelSim by APathirana
+# EMTSim 
 ___
 DommelSim is a open source EMT simulation program based on algorithm proposed by dommel. 
 This simulation program contains only R, L, C elements and voltage sources.
@@ -63,5 +63,5 @@ if __name__ == "__main__":
     run()
 ```
 
-
+## Amila Pathirana
 
