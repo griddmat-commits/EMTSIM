@@ -12,12 +12,12 @@ Feel free to Fork and improve :D
 ## Steps of the simulation algorithm inside DommelSim
 __
 1. Generate the conductance matrix G
-2. Divide the G into Guu,Guk,Gku,Gkk
-3. Use LU decompossition and obtain upper triangular matrix of Guu
-4. Initialize IU,IK,VU and VK
 
-5. Enter main time loop
+2. Enter main time loop
 
+3. Divide the G into Guu,Guk,Gku,Gkk
+4. Use LU decompossition and obtain upper triangular matrix of Guu
+5. Initialize IU,IK,VU and VK
 6. Update voltage sources
 8. Calculate the history currents of all the branches(ihistory)
 9. Calculate the current injection (IH)
@@ -39,11 +39,12 @@ def run():
 
     EMTDC=emtcls.Network()
     EMTDC.formG()
-    EMTDC.Gdivide()
-    EMTDC.LU()
-    EMTDC.Vdivide()
+
 
     while Time<config.stpTime:
+        EMTDC.Gdivide()
+        EMTDC.LU()
+        EMTDC.Vdivide()
         Time=Time+config.Dt
         EMTDC.Vkupdate(Time)        
         EMTDC.calcBrnHistory()
