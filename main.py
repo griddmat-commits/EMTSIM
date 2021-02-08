@@ -1,4 +1,3 @@
-
 import sys
 import emtcls
 import config
@@ -19,7 +18,6 @@ def run():
         EMTDC.Gdivide()
         EMTDC.LU()
         EMTDC.Vdivide()
-
         Time=Time+config.Dt
         EMTDC.Vkupdate(Time)        
         EMTDC.calcBrnHistory()
@@ -30,8 +28,7 @@ def run():
         EMTDC.reconstruct_V()
         EMTDC.calcNewbranchI()
         EMTDC.recordv(2)
-        
-       
+      
     EMTDC.plotv()
 
 
