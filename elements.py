@@ -3,11 +3,10 @@ import numpy as np
 import config
 
 class RLC():
-    def __init__(self,brnType,strnode,stpnode,value):
+    def __init__(self,brnType=None,strnode=None,stpnode=None,value=None):
         self.brnType=brnType
         self.strnode=strnode
         self.stpnode=stpnode
-
         self.Ilast=0.0
         self.Vlast=0.0
         self.ihistory=0.0
@@ -29,14 +28,14 @@ class RLC():
             print("R L C only")
 
 class Source():
-    def __init__(self,brnType,strnode,stpnode,magnitude,angle,frequency,value):
+    def __init__(self,brnType=None,strnode=None,stpnode=None,magnitude=None,angle=None,frequency=None,resistance=None):
         self.brnType = brnType
         self.strnode= strnode
         self.stpnode= stpnode
         self.magnitude= magnitude
         self.angle= angle
         self.frequency= frequency
-        self.Reff=value
+        self.Reff=resistance
       
         self.Vlast=0.0
         self.ihistory=0.0
@@ -84,7 +83,7 @@ class Switch():
             self.Reff=self.valueoff
 
 
-'''             
+'''              
 
 
         
