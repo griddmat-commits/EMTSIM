@@ -1,8 +1,6 @@
-
+___
 ![Screenshot](logo.png)
 ___
-
-# EMTSim 
 ___
 EMTSim is a simulation program based on algorithm proposed by dommel. 
 This simulation program contains only R, L, C elements and voltage sources.
