@@ -1,3 +1,6 @@
 {
-    "python.pythonPath": "c:\\IntProjects\\power\\ve\\Scripts\\python.exe"
+    "python.defaultInterpreterPath": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+    "code-runner.executorMap": {
+        "python": "\"$workspaceRoot\\.venv\\Scripts\\python.exe\" -u $fullFileName"
+    }
 }

@@ -38,6 +38,12 @@ E3=el.RLC(brnType="C",strnode=2,stpnode=1,value=1.0e-3)
 E4=el.RLC(brnType="R",strnode=0,stpnode=2,value=1.0e-3)
 E5=el.RLC(brnType="L",strnode=0,stpnode=1,value=1.0e-3)
 ```
+
+Voltage sources come in two forms, chosen by `resistance`:
+- `resistance` > 0: Norton equivalent (current source E/R in parallel with R). The source node is an unknown node.
+- `resistance` omitted or 0: ideal voltage source. One terminal must be ground (node 0), and the other node becomes a known node.
+
+Nodes can be numbered in any order. Known nodes are moved to the end of the matrix internally.
 ___
 ### This is how you define the circuit elements in elements.py. The goal of this part is to calculate the history current and equivalent resistance of the element for each and every time step. Following code segment shows, how i defined R,L,C elements.
 
