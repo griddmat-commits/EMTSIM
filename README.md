@@ -1,129 +1,152 @@
-___
-![Screenshot](logo.png)
-___
-___
-EMTSim is a simulation program based on algorithm proposed by dommel. 
-This simulation program contains only R, L, C elements and voltage sources.
-With this program structure, it is easy to add new components to the program. for example, if you want to add  a new element into the program, go to the dataloader.py and add the new component with specified parameters. Available elements are defined in the elments.py file.
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/logo-dark.svg">
+    <img alt="EMTSim" src="docs/logo.svg" width="520">
+  </picture>
+</p>
 
-Feel free to Fork and improve :D
+**EMTSim** is a small electromagnetic transients (EMT) simulator written in Python. It implements Dommel's nodal method: the same time-domain algorithm that runs underneath tools such as PSCAD/EMTDC and EMTP, kept small enough to read in one sitting.
 
----
-## Steps of the simulation algorithm inside DommelSim
-__
-1. Generate the conductance matrix G
+It started as a learning project to understand what happens inside an EMT engine. Every step of the algorithm is a separate, commented method, so you can follow a simulation one time step at a time.
 
-2. Enter main time loop
+<p align="center">
+  <img alt="Node voltages during a bolted fault at the load bus" src="docs/fault_example.png" width="760">
+</p>
+<p align="center"><sub>Example circuit in <code>dataloader.py</code>: a 230 V, 50 Hz radial feeder with a bolted fault at the load bus, applied at 40 ms and cleared at 70 ms. The −700 V spike is the switching overvoltage produced when the fault current is interrupted.</sub></p>
 
-3. Divide the G into Guu,Guk,Gku,Gkk
-4. Use LU decompossition and obtain upper triangular matrix of Guu
-5. Initialize IU,IK,VU and VK
-6. Update voltage sources
-8. Calculate the history currents of all the branches(ihistory)
-9. Calculate the current injection (IH)
-10. Divide the IH into IU and IK
-11. Calculate IUnew (IUnew=IU-Guk*Vk)
-12. Calculate node voltages(VU)
-13. Reconstruct Vn (concat VU and VK)
-14. Update the branch currents
-15. Plot the voltage of specific node
+## Features
 
-    
-___
-### This is how you include the circuit elements to the simulation in dataloader.py 
-```python
-E1=el.Source(brnType="S",strnode=0,stpnode=3,magnitude=100,angle=45,frequency=100,resistance=1)
-E2=el.RLC(brnType="L",strnode=3,stpnode=2,value=1.0e-3)
-E3=el.RLC(brnType="C",strnode=2,stpnode=1,value=1.0e-3)
-E4=el.RLC(brnType="R",strnode=0,stpnode=2,value=1.0e-3)
-E5=el.RLC(brnType="L",strnode=0,stpnode=1,value=1.0e-3)
+- R, L and C elements using trapezoidal-rule companion models
+- Sinusoidal voltage sources, either ideal or Norton equivalents with internal resistance
+- Time-controlled faults and switches. The conductance matrix is rebuilt and refactorised only when something switches.
+- Nodes can be numbered freely; source nodes are reordered automatically
+- Plots every node voltage, with fault periods shaded
+
+## Quick start
+
+```bash
+git clone https://github.com/griddmat-commits/EMTSIM.git
+cd EMTSIM
+python -m venv .venv
+.venv\Scripts\activate          # Windows  (macOS/Linux: source .venv/bin/activate)
+pip install -r requirements.txt
+python main.py
 ```
 
-Voltage sources come in two forms, chosen by `resistance`:
-- `resistance` > 0: Norton equivalent (current source E/R in parallel with R). The source node is an unknown node.
-- `resistance` omitted or 0: ideal voltage source. One terminal must be ground (node 0), and the other node becomes a known node.
+A window opens with one plot per node. Edit `dataloader.py` to simulate your own circuit, and `config.py` to change the time step or the simulation length.
 
-Nodes can be numbered in any order. Known nodes are moved to the end of the matrix internally.
-___
-### This is how you define the circuit elements in elements.py. The goal of this part is to calculate the history current and equivalent resistance of the element for each and every time step. Following code segment shows, how i defined R,L,C elements.
+## Defining a circuit
+
+Circuits are lists of elements in [`dataloader.py`](dataloader.py). Node `0` is ground, and other nodes are numbered `1, 2, 3, ...`.
 
 ```python
-class RLC():
-    def __init__(self,brnType=None,strnode=None,stpnode=None,value=None):
-        self.brnType=brnType
-        self.strnode=strnode
-        self.stpnode=stpnode
-        self.Ilast=0.0
-        self.Vlast=0.0
-        self.ihistory=0.0
-        
+import elements as el
 
-        if self.brnType=="R":
-            self.Reff=value
-            self.ihistory=0.0
-            print(self.Reff)
-        elif self.brnType=="L":
-            self.Reff=(2*value)/config.Dt
-            self.ihistory=self.Ilast+self.Vlast/self.Reff
-            print(self.Reff)
-        elif self.brnType=="C":
-            self.Reff=config.Dt/(2*value)
-            self.ihistory=-self.Ilast-self.Vlast/self.Reff
-            print(self.Reff)
-        else:
-            print("R L C only")
+E1 = el.Source(brnType="S", strnode=0, stpnode=1, magnitude=325.0, angle=0, frequency=50, resistance=0.1)
+E2 = el.RLC(brnType="R", strnode=1, stpnode=2, value=0.5)       # ohm
+E3 = el.RLC(brnType="L", strnode=2, stpnode=3, value=5.0e-3)    # henry
+E4 = el.RLC(brnType="R", strnode=3, stpnode=0, value=20.0)
+E5 = el.RLC(brnType="C", strnode=3, stpnode=0, value=50.0e-6)   # farad
+F1 = el.Fault(strnode=3, stpnode=0, Ron=0.01, Roff=1.0e6, t_apply=0.040, t_clear=0.070)
+
+elemet_list = [E1, E2, E3, E4, E5, F1]
 ```
 
+| Element | Parameters | Notes |
+|---|---|---|
+| `el.RLC(brnType="R")` | `value` in Ω | |
+| `el.RLC(brnType="L")` | `value` in H | |
+| `el.RLC(brnType="C")` | `value` in F | |
+| `el.Source` | `magnitude` (peak V), `angle` (deg), `frequency` (Hz), `resistance` (Ω) | `v(t) = magnitude·cos(2πft + angle)`, which raises `stpnode` above `strnode`. If `resistance` > 0, it is modelled as a Norton equivalent. If `resistance` is omitted or 0, it is an ideal source, and one terminal must be ground. |
+| `el.Fault` | `Ron`, `Roff` (Ω), `t_apply`, `t_clear` (s) | A resistive switch. It is closed (`Ron`) from `t_apply` until `t_clear`. Leave out `t_clear` for a permanent fault. Clearing is instant; it does not wait for a current zero. |
 
-___
-### This is how the main program runs. Each method called in this section is defined in emtcls.py
+Simulation settings are in [`config.py`](config.py):
 
 ```python
-
-def run():
-    print("\nStart running the simulation..... \n")
-    Time=config.srtTime  
-    #Initialize the network
-    EMTDC=emtcls.Network()
-    # Form the conductance matrix
-    EMTDC.formG()
-
-    #Enter the main time loop
-    while Time<config.stpTime:
-        # Divide the Conductance matrix into  GUU, GUK, GKU, GKK
-        EMTDC.Gdivide()
-        #LU decomposition of GUU
-        EMTDC.LU()
-        #Divide node voltage vector into VU and VK
-        EMTDC.Vdivide()
-        #Advance one time step
-        Time=Time+config.Dt
-        #Update the voltage sources
-        EMTDC.Vkupdate(Time)
-        #Calculate the history current of each branch       
-        EMTDC.calcBrnHistory()
-        #Calculate the current injection at each node
-        EMTDC.calcinjection()
-        #Divide IH in to IU and IK
-        EMTDC.Idivide()
-        #Calculate new IU
-        EMTDC.calIUnew()
-        #Calculate new VU
-        EMTDC.calcnewV()
-        #Reconstruct node voltage vector
-        EMTDC.reconstruct_V()
-        #Calculate branch currents of each element
-        EMTDC.calcNewbranchI()
-        #Record the voltage of node 2 or any other node :)
-        EMTDC.recordv(2)
-      
-    EMTDC.plotv()
-
-
-if __name__ == "__main__":
-    run()
+Dt = 100e-6                     # time step (s)
+srtTime = 0.0
+stpTime = srtTime + 1000*Dt     # 0.1 s
 ```
 
-## Amila Pathirana
+## How it works
 
+### 1. Companion models
 
+The trapezoidal rule turns each inductor and capacitor into a resistor in parallel with a *history current source*. The history current depends only on the branch's voltage and current from the previous time step. Every branch then has the form
+
+$$i(t) = \frac{v(t)}{R_{eq}} + I_h(t)$$
+
+| Element | $R_{eq}$ | $I_h(t)$ |
+|---|---|---|
+| Resistor | $R$ | $0$ |
+| Inductor | $\dfrac{2L}{\Delta t}$ | $i(t-\Delta t) + \dfrac{v(t-\Delta t)}{R_{eq}}$ |
+| Capacitor | $\dfrac{\Delta t}{2C}$ | $-i(t-\Delta t) - \dfrac{v(t-\Delta t)}{R_{eq}}$ |
+
+Here $v$ is the voltage of `strnode` minus `stpnode`, and $i$ is the current flowing from `strnode` to `stpnode`.
+
+### 2. Nodal equations
+
+At every time step the network becomes a purely resistive circuit with current injections:
+
+$$G\,v(t) = i_h(t)$$
+
+The nodes are split into **unknown** nodes (U) and **known** nodes (K), whose voltage is fixed by ideal sources:
+
+$$\begin{bmatrix} G_{UU} & G_{UK} \\ G_{KU} & G_{KK} \end{bmatrix} \begin{bmatrix} v_U \\ v_K \end{bmatrix} = \begin{bmatrix} i_U \\ i_K \end{bmatrix} \quad\Rightarrow\quad G_{UU}\,v_U = i_U - G_{UK}\,v_K$$
+
+$G$ depends only on $\Delta t$ and the element values. So $G_{UU}$ is LU-factorised once, and every time step is just a forward and back substitution. When a fault or switch changes state, $G$ is rebuilt and factorised again.
+
+### 3. The time loop
+
+This is [`main.py`](main.py), and each step is a method in [`emtcls.py`](emtcls.py):
+
+```
+build G, split into G_UU / G_UK / G_KU / G_KK, LU-factorise G_UU
+for each time step:
+    Vdivide          split node voltages into v_U, v_K
+    updateSwitches   apply/clear faults -> if anything changed, rebuild and refactorise G
+    Vkupdate         update source voltages (v_K for ideal sources)
+    calcBrnHistory   history current I_h of every branch
+    calcinjection    assemble nodal injections i_h
+    Idivide          split into i_U, i_K
+    calIUnew         i_U - G_UK v_K
+    calcnewV         solve G_UU v_U = ... using the LU factors
+    reconstruct_V    v = [v_U ; v_K]
+    calcNewbranchI   branch voltages and currents, stored for the next history term
+    recordv          record all node voltages
+plot
+```
+
+## Project structure
+
+| File | Purpose |
+|---|---|
+| [`main.py`](main.py) | Runs the simulation loop |
+| [`emtcls.py`](emtcls.py) | `Network`: matrix assembly, partitioning, solution and plotting |
+| [`elements.py`](elements.py) | Element models: `RLC`, `Source`, `Fault` |
+| [`dataloader.py`](dataloader.py) | The circuit to simulate |
+| [`config.py`](config.py) | Time step and simulation length |
+| [`docs/`](docs) | Logo (with `make_logo.py` to regenerate it) and the example plot |
+
+## Accuracy
+
+The solver was checked against the analytical solutions of RL and RC circuits energised by a sinusoidal source, with every combination of ideal and Norton sources and element orientation. At Δt = 100 µs the maximum error was about 5×10⁻⁵ per unit.
+
+## Limitations and ideas
+
+- Single-phase only, with no transmission-line models (Bergeron or frequency-dependent)
+- No nonlinear elements (surge arresters, saturable transformers)
+- Faults clear at a fixed time rather than at a current zero
+- The trapezoidal rule can produce numerical oscillations after switching inductive circuits. Critical damping adjustment (CDA) is a known fix.
+- Dense matrices. Sparse LU would be needed for large networks.
+
+Contributions are welcome. Fork it and improve it.
+
+## Author
+
+**Amila Pathirana**
+
+## Further reading
+
+- H. W. Dommel, "Digital Computer Solution of Electromagnetic Transients in Single- and Multiphase Networks," *IEEE Trans. PAS*, 1969.
+- N. Watson and J. Arrillaga, *Power Systems Electromagnetic Transients Simulation*, IET, 2003.
