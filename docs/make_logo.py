@@ -64,6 +64,7 @@ def save(fig, name, **kw):
     plt.close(fig)
 
 
-save(draw(NAVY, "#5B6477", NAVY), "logo.svg")
-save(draw("#E6EDF3", "#9AA4B2", "#3A4560"), "logo-dark.svg")
-save(draw(NAVY, "#5B6477", NAVY), "logo.png", dpi=200)
+if __name__ == "__main__":
+    save(draw(NAVY, "#5B6477", NAVY), "logo.svg")
+    save(draw("#E6EDF3", "#9AA4B2", "#3A4560"), "logo-dark.svg")
+    save(draw(NAVY, "#5B6477", NAVY), "logo.png", dpi=200)

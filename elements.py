@@ -52,78 +52,72 @@ class Source():
         #print("sourceupdate method clled",self.E)
 
 
-class Fault():
+class Switch():
     '''
-    Time-controlled fault: a resistive switch between strnode and stpnode
-    (stpnode=0 for a fault to ground). It is open (Roff) before t_apply,
-    closed (Ron) from t_apply until t_clear, and open again after t_clear.
-    t_clear=None means the fault is never cleared.
-    Clearing is instantaneous at t_clear (no waiting for current zero).
+    Time-controlled switch (ideal breaker) between strnode and stpnode,
+    modelled as a resistance: Ron when closed, Roff when open.
+
+    closed   : initial state at t = 0 (True = closed)
+    t_switch : list of times (s) at which the switch changes state.
+               Each time toggles it: open -> closed or closed -> open.
+
+    Example: a breaker that opens at 30 ms and recloses at 80 ms
+        el.Switch(strnode=1, stpnode=2, closed=True, t_switch=[0.030, 0.080])
+
+    Switching is instantaneous at the given time. A real breaker waits for a
+    current zero, so opening an inductive current here gives a worst-case
+    (current-chopping) overvoltage.
     '''
-    def __init__(self,brnType="F",strnode=None,stpnode=0,Ron=0.01,Roff=1.0e6,t_apply=None,t_clear=None):
+    def __init__(self,brnType="SW",strnode=None,stpnode=None,Ron=0.01,Roff=1.0e6,closed=True,t_switch=()):
         self.brnType=brnType
         self.strnode=strnode
         self.stpnode=stpnode
         self.Ron=Ron
         self.Roff=Roff
-        self.t_apply=t_apply
-        self.t_clear=t_clear
+        self.closed0=closed
+        self.t_switch=sorted(t_switch)
 
-        self.closed=False
-        self.Reff=Roff
+        self.closed=closed
+        self.Reff=Ron if closed else Roff
         self.Ilast=0.0
         self.Vlast=0.0
         self.ihistory=0.0
 
+    def state_at(self,TheTime):
+        '''True if the switch is closed at TheTime.'''
+        # Small tolerance: Time is accumulated as Time += Dt, so e.g. 200*Dt can land
+        # just below 0.02 and the switch would otherwise operate one step late.
+        tol = 1e-6*config.Dt
+        n = sum(1 for ts in self.t_switch if TheTime >= ts - tol)
+        return self.closed0 != (n % 2 == 1)
+
+    def describe(self,closed):
+        return "closed" if closed else "opened"
+
     def update(self,TheTime):
         '''Set the switch state for this time. Returns True if the state changed.'''
-        closed = TheTime >= self.t_apply and (self.t_clear is None or TheTime < self.t_clear)
+        closed = self.state_at(TheTime)
         if closed == self.closed:
             return False
         self.closed = closed
         self.Reff = self.Ron if closed else self.Roff
-        print("t = %.5f s: fault %s (nodes %d-%d)" % (TheTime, "applied" if closed else "cleared", self.strnode, self.stpnode))
+        print("t = %.5f s: %s %s (nodes %d-%d)" % (TheTime, type(self).__name__.lower(),
+              self.describe(closed), self.strnode, self.stpnode))
         return True
 
-'''
-class Switch():
-    stoptogle=0
-    def __init__(self,brnType,strnode,stpnode,valueon,valueoff,status=1):
-        self.brnType=brnType
-        self.strnode=strnode
-        self.stpnode=stpnode
-        self.Ilast=0
-        self.Vlast=0
-        self.valueon=valueon
-        self.valueoff=valueoff
-        self.status=status
-        self.ihistory=0.0
-        
 
-        if self.status==1:
-            self.Reff=self.valueon
-        elif self.status==0:
-            self.Reff=self.valueoff
+class Fault(Switch):
+    '''
+    Time-controlled fault: a switch between strnode and stpnode
+    (stpnode=0 for a fault to ground) that is open before t_apply,
+    closed (Ron) from t_apply until t_clear, and open again after t_clear.
+    t_clear=None means the fault is never cleared.
+    '''
+    def __init__(self,brnType="F",strnode=None,stpnode=0,Ron=0.01,Roff=1.0e6,t_apply=None,t_clear=None):
+        times = [t_apply] if t_clear is None else [t_apply, t_clear]
+        super().__init__(brnType=brnType,strnode=strnode,stpnode=stpnode,Ron=Ron,Roff=Roff,closed=False,t_switch=times)
+        self.t_apply=t_apply
+        self.t_clear=t_clear
 
-    def togle(self):
-        #print(self.status)
-        if stoptogle==0:
-            if self.status==1:
-                self.status=0
-                stoptogle=1
-
-            elif self.status==0:
-                self.status=1
-                stoptogle=1
-
-        print("Togled",self.status)
-        if self.status==1:
-            self.Reff=self.valueon
-        elif self.status==0:
-            self.Reff=self.valueoff
-
-
-'''              
-
-
-        
+    def describe(self,closed):
+        return "applied" if closed else "cleared"

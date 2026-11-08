@@ -10,15 +10,15 @@
 It started as a learning project to understand what happens inside an EMT engine. Every step of the algorithm is a separate, commented method, so you can follow a simulation one time step at a time.
 
 <p align="center">
-  <img alt="Node voltages during a bolted fault at the load bus" src="docs/fault_example.png" width="760">
+  <img alt="Node voltages of the 8-node example network during a fault and a breaker operation" src="docs/example_network.png" width="760">
 </p>
-<p align="center"><sub>Example circuit in <code>dataloader.py</code>: a 230 V, 50 Hz radial feeder with a bolted fault at the load bus, applied at 40 ms and cleared at 70 ms. The −700 V spike is the switching overvoltage produced when the fault current is interrupted.</sub></p>
+<p align="center"><sub>Example network in <code>dataloader.py</code>: 8 nodes fed by two 230 V, 50 Hz sources (one Norton, one ideal, 15° apart). A bolted fault at bus 6 is applied at 20 ms and cleared at 40 ms. Breaker SW1 then opens at 55 ms, splitting the network in two, and recloses at 80 ms. Bus 6 collapses during the fault and spikes when it clears, and the capacitive buses ring after each event.</sub></p>
 
 ## Features
 
 - R, L and C elements using trapezoidal-rule companion models
 - Sinusoidal voltage sources, either ideal or Norton equivalents with internal resistance
-- Time-controlled faults and switches. The conductance matrix is rebuilt and refactorised only when something switches.
+- Time-controlled switches (breakers) and faults. The conductance matrix is rebuilt and refactorised only when something switches.
 - Nodes can be numbered freely; source nodes are reordered automatically
 - Plots every node voltage, with fault periods shaded
 
@@ -58,7 +58,8 @@ elemet_list = [E1, E2, E3, E4, E5, F1]
 | `el.RLC(brnType="L")` | `value` in H | |
 | `el.RLC(brnType="C")` | `value` in F | |
 | `el.Source` | `magnitude` (peak V), `angle` (deg), `frequency` (Hz), `resistance` (Ω) | `v(t) = magnitude·cos(2πft + angle)`, which raises `stpnode` above `strnode`. If `resistance` > 0, it is modelled as a Norton equivalent. If `resistance` is omitted or 0, it is an ideal source, and one terminal must be ground. |
-| `el.Fault` | `Ron`, `Roff` (Ω), `t_apply`, `t_clear` (s) | A resistive switch. It is closed (`Ron`) from `t_apply` until `t_clear`. Leave out `t_clear` for a permanent fault. Clearing is instant; it does not wait for a current zero. |
+| `el.Switch` | `Ron`, `Roff` (Ω), `closed` (initial state), `t_switch` (list of times, s) | A breaker modelled as `Ron` when closed and `Roff` when open. It changes state at each time in `t_switch`. For example, `closed=True, t_switch=[0.03, 0.08]` opens at 30 ms and recloses at 80 ms. Switching is instant; it does not wait for a current zero. |
+| `el.Fault` | `Ron`, `Roff` (Ω), `t_apply`, `t_clear` (s) | A switch that is closed from `t_apply` until `t_clear`. Leave out `t_clear` for a permanent fault. |
 
 Simulation settings are in [`config.py`](config.py):
 
@@ -123,10 +124,10 @@ plot
 |---|---|
 | [`main.py`](main.py) | Runs the simulation loop |
 | [`emtcls.py`](emtcls.py) | `Network`: matrix assembly, partitioning, solution and plotting |
-| [`elements.py`](elements.py) | Element models: `RLC`, `Source`, `Fault` |
+| [`elements.py`](elements.py) | Element models: `RLC`, `Source`, `Switch`, `Fault` |
 | [`dataloader.py`](dataloader.py) | The circuit to simulate |
 | [`config.py`](config.py) | Time step and simulation length |
-| [`docs/`](docs) | Logo (with `make_logo.py` to regenerate it) and the example plot |
+| [`docs/`](docs) | Logo (with `make_logo.py` to regenerate it) and the example network plot |
 
 ## Accuracy
 

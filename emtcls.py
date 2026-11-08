@@ -62,7 +62,7 @@ class Network:
         meaning G must be rebuilt and refactorised.'''
         changed = False
         for obj in self.comp_list:
-            if obj.brnType == "F":
+            if isinstance(obj, el.Switch):
                 changed = obj.update(TheTime) or changed
         return changed
 
@@ -151,7 +151,7 @@ class Network:
 
     def calcBrnHistory(self):
         for obj in self.comp_list:
-            if obj.brnType in ("R", "F"):
+            if obj.brnType in ("R", "F", "SW"):
                obj.ihistory=0.0
             elif obj.brnType=="S":
                 # Norton equivalent: current source E/R in parallel with R
@@ -232,18 +232,22 @@ class Network:
         t = np.array(self.time)*1000.0
         V = np.array(self.trace)
         plt.close('all')
-        fig, axes = plt.subplots(self.numNodes, 1, sharex=True, figsize=(10, 2.2*self.numNodes), squeeze=False)
+        fig, axes = plt.subplots(self.numNodes, 1, sharex=True, figsize=(10, min(2.2*self.numNodes, 1.4*self.numNodes + 2)), squeeze=False)
         for n in range(self.numNodes):
             ax = axes[n,0]
             ax.plot(t, V[:,n], linewidth=1)
             ax.set_ylabel("V%d (V)" % (n + 1))
             ax.grid(True, alpha=0.3)
-            # Shade fault periods
             for obj in self.comp_list:
-                if obj.brnType == "F":
+                if isinstance(obj, el.Fault):
+                    # Shade fault periods
                     t_end = obj.t_clear if obj.t_clear is not None else self.time[-1]
                     ax.axvspan(obj.t_apply*1000.0, t_end*1000.0, color="red", alpha=0.1)
-        axes[0,0].set_title("Node voltages (shaded: fault applied)")
+                elif isinstance(obj, el.Switch):
+                    # Dashed line at each switch operation
+                    for ts in obj.t_switch:
+                        ax.axvline(ts*1000.0, color="gray", linestyle="--", linewidth=1)
+        axes[0,0].set_title("Node voltages (shaded: fault applied, dashed: switch operation)")
         axes[-1,0].set_xlabel("Time (ms)")
         fig.tight_layout()
         plt.show()
