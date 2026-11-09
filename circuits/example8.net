@@ -1,0 +1,22 @@
+# EMTSim netlist: example8 (drawn with the EMTSim circuit editor)
+#
+# Format: R/L/C from to value | V from to peak angle freq [R] | SW from to closed|open times... | F from to t_apply [t_clear]
+# 8 nodes, 15 elements
+
+V 0 1  325 0 50 0.1   # VS1
+R 1 2  0.2   # R12
+L 2 3  0.003   # L23
+R 3 0  25   # RLD1
+C 3 0  0.00003   # C1
+SW 3 4  closed 0.055 0.08   # SW1
+R 4 5  0.3   # R45
+C 5 0  0.00002   # C2
+L 5 6  0.004   # L56
+R 6 0  30   # RLD2
+F 6 0  0.02 0.04   # F1
+L 6 7  0.002   # L67
+R 7 8  0.2   # R78
+V 0 8  325 -15 50   # VS2
+C 6 7  0.00001   # C3
+
+#@layout {"v":1,"components":[{"type":"V","name":"VS1","x":2,"y":12,"rot":270,"params":{"mag":"325","angle":"0","freq":"50","r":"0.1"}},{"type":"GND","name":"GND","x":2,"y":12,"rot":0,"params":{}},{"type":"R","name":"R12","x":4,"y":8,"rot":0,"params":{"value":"0.2"}},{"type":"L","name":"L23","x":8,"y":8,"rot":0,"params":{"value":"3m"}},{"type":"R","name":"RLD1","x":12,"y":8,"rot":90,"params":{"value":"25"}},{"type":"GND","name":"GND","x":12,"y":12,"rot":0,"params":{}},{"type":"C","name":"C1","x":15,"y":8,"rot":90,"params":{"value":"30u"}},{"type":"GND","name":"GND","x":15,"y":12,"rot":0,"params":{}},{"type":"SW","name":"SW1","x":19,"y":8,"rot":0,"params":{"state":"closed","times":"55m, 80m"}},{"type":"R","name":"R45","x":23,"y":8,"rot":0,"params":{"value":"0.3"}},{"type":"C","name":"C2","x":27,"y":8,"rot":90,"params":{"value":"20u"}},{"type":"GND","name":"GND","x":27,"y":12,"rot":0,"params":{}},{"type":"L","name":"L56","x":31,"y":8,"rot":0,"params":{"value":"4m"}},{"type":"R","name":"RLD2","x":35,"y":8,"rot":90,"params":{"value":"30"}},{"type":"GND","name":"GND","x":35,"y":12,"rot":0,"params":{}},{"type":"F","name":"F1","x":38,"y":8,"rot":90,"params":{"t_apply":"20m","t_clear":"40m"}},{"type":"GND","name":"GND","x":38,"y":12,"rot":0,"params":{}},{"type":"L","name":"L67","x":43,"y":8,"rot":0,"params":{"value":"2m"}},{"type":"R","name":"R78","x":47,"y":8,"rot":0,"params":{"value":"0.2"}},{"type":"V","name":"VS2","x":53,"y":12,"rot":270,"params":{"mag":"325","angle":"-15","freq":"50","r":""}},{"type":"GND","name":"GND","x":53,"y":12,"rot":0,"params":{}},{"type":"C","name":"C3","x":43,"y":10,"rot":0,"params":{"value":"10u"}}],"wires":[{"x1":2,"y1":8,"x2":4,"y2":8},{"x1":12,"y1":8,"x2":19,"y2":8},{"x1":27,"y1":8,"x2":31,"y2":8},{"x1":35,"y1":8,"x2":43,"y2":8},{"x1":51,"y1":8,"x2":53,"y2":8},{"x1":43,"y1":10,"x2":43,"y2":8},{"x1":47,"y1":10,"x2":47,"y2":8}]}

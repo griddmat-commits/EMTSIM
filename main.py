@@ -14,9 +14,13 @@ def refactor(EMTDC):
     EMTDC.LU()
 
 
-def run():
+def run(netlist_path=None):
     print("\nStart running the simulation..... \n")
     Time=config.srtTime
+    #Use a netlist file if given, otherwise the circuit in dataloader.py
+    if netlist_path:
+        import netlist
+        dl.elemet_list = netlist.load(netlist_path)
     #Initialize the network
     EMTDC=emtcls.Network()
     #Set the initial switch/fault states and factorise G
@@ -55,4 +59,6 @@ def run():
 
 
 if __name__ == "__main__":
-    run()
+    # python main.py                       -> circuit in dataloader.py
+    # python main.py circuits/grid100.net  -> circuit from a netlist file
+    run(sys.argv[1] if len(sys.argv) > 1 else None)

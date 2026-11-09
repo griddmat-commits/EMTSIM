@@ -1,0 +1,19 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "EMTSim: build and test",
+            "type": "shell",
+            "command": "cmd /c build.bat",
+            "group": { "kind": "build", "isDefault": true },
+            "problemMatcher": ["$msCompile"]
+        },
+        {
+            "label": "EMTSim: build, run and plot",
+            "type": "shell",
+            "command": "cmd /c run.bat",
+            "group": "test",
+            "problemMatcher": ["$msCompile"]
+        }
+    ]
+}

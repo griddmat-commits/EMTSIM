@@ -229,25 +229,11 @@ class Network:
 
 
     def plotv(self):
-        t = np.array(self.time)*1000.0
-        V = np.array(self.trace)
+        from plot import plot_nodes
+        faults = [(o.t_apply, o.t_clear) for o in self.comp_list if isinstance(o, el.Fault)]
+        switches = [ts for o in self.comp_list
+                    if isinstance(o, el.Switch) and not isinstance(o, el.Fault) for ts in o.t_switch]
         plt.close('all')
-        fig, axes = plt.subplots(self.numNodes, 1, sharex=True, figsize=(10, min(2.2*self.numNodes, 1.4*self.numNodes + 2)), squeeze=False)
-        for n in range(self.numNodes):
-            ax = axes[n,0]
-            ax.plot(t, V[:,n], linewidth=1)
-            ax.set_ylabel("V%d (V)" % (n + 1))
-            ax.grid(True, alpha=0.3)
-            for obj in self.comp_list:
-                if isinstance(obj, el.Fault):
-                    # Shade fault periods
-                    t_end = obj.t_clear if obj.t_clear is not None else self.time[-1]
-                    ax.axvspan(obj.t_apply*1000.0, t_end*1000.0, color="red", alpha=0.1)
-                elif isinstance(obj, el.Switch):
-                    # Dashed line at each switch operation
-                    for ts in obj.t_switch:
-                        ax.axvline(ts*1000.0, color="gray", linestyle="--", linewidth=1)
-        axes[0,0].set_title("Node voltages (shaded: fault applied, dashed: switch operation)")
-        axes[-1,0].set_xlabel("Time (ms)")
-        fig.tight_layout()
+        plot_nodes(np.array(self.time)*1000.0, np.array(self.trace),
+                   ["V%d" % (n + 1) for n in range(self.numNodes)], faults, switches)
         plt.show()
